@@ -85,13 +85,13 @@ function hax_generate_secure_key($data) {
 add_action( 'rest_api_init', function () {
   register_rest_route( 'hax/v1', '/appstore.json', array(
     'methods' => 'GET',
-    'callback' => '_hax_load_app_store',
+    'callback' => 'hax_load_app_store',
   ) );
 } );
 /**
  * Callback to assemble the hax app store
  */
-function _hax_load_app_store(WP_REST_Request $request) {
+function hax_load_app_store(WP_REST_Request $request) {
   // You can access parameters via direct array access on the object:
   $param = $request['some_param'];
   $token = $request->get_param( 'token' );
@@ -104,13 +104,179 @@ function _hax_load_app_store(WP_REST_Request $request) {
         $apikeys[$key] = get_option('hax_' . $key . '_key', '');
       }
     }
+    $json = $hax->loadBaseAppStore($apikeys);
+    $tmp = json_decode(_hax_site_connection());
+    array_push($json, $tmp);
     $return = array(
       'status' => 200,
-      'apps' => $hax->loadBaseAppStore($apikeys),
+      'apps' => $json,
       'autoloader' => explode(' ', get_option('hax_autoload_element_list', WP_HAX_AUTOLOAD_ELEMENT_LIST)),
       'blox' => $hax->loadBaseBlox(),
 	  	'stax' => $hax->loadBaseStax(),
     );
+    // Create the response object
+    $response = new WP_REST_Response( $return );
+    $response->set_status( 200 );
+    // send back happy headers
+    $response->header( 'Content-Type', 'application/json' );
+    // output the response as json
+    return $response;
+  }
+}
+
+add_action( 'rest_api_init', function () {
+  register_rest_route( 'hax/v1', '/file-upload.json', array(
+    'methods' => 'POST',
+    'callback' => 'hax_upload_file',
+  ) );
+} );
+/**
+ * Callback to assemble the hax app store
+ */
+function hax_upload_file(WP_REST_Request $request) {
+  // You can access parameters via direct array access on the object:
+  $param = $request['some_param'];
+  $token = $request->get_param( 'token' );
+  if ($token == hax_generate_secure_key('haxTheWeb') && isset($_FILES['file-upload'])) {
+    $upload = $_FILES['file-upload'];
+    // check for a file upload
+    if (isset($upload['tmp_name']) && is_uploaded_file($upload['tmp_name'])) {
+      // get contents of the file if it was uploaded into a variable
+      $filedata = file_get_contents($upload['tmp_name']);
+      $wpUpload = wp_upload_dir();
+      // attempt to save the file
+      $fullpath = $wpUpload['path'] . '/' . $upload['name'];
+      if ($size = file_put_contents($fullpath, $filedata)) {
+        // @todo fake the file object creation stuff from CMS land
+        $return = array(
+        'data' => array(
+          'file' => array(
+            'path' => $fullpath,
+            'fullUrl' => $wpUpload['url'] . '/' . $upload['name'],
+            'url' =>  get_site_url(null, '/wp-content/uploads' . $wpUpload['subdir'] . '/' . $upload['name'], 'relative'),
+            'type' => mime_content_type($fullpath),
+            'name' => $upload['name'],
+            'size' => $size,
+            )
+          )
+        );
+        // Create the response object
+        $response = new WP_REST_Response( $return );
+        $response->set_status( 200 );
+        // send back happy headers
+        $response->header( 'Content-Type', 'application/json' );
+        // output the response as json
+        return $response;
+      }
+    }
+  }
+  else {
+    // Create the response object
+    $response = new WP_REST_Response( NULL );
+    $response->set_status( 403 );
+    // send back happy headers
+    $response->header( 'Content-Type', 'application/json' );
+    // output the response as json
+    return $response;
+  }
+}
+
+/**
+ * Connection details for this site. This is where
+ * all the really important stuff is that will
+ * make people freak out.
+ */
+function _hax_site_connection() {
+  $base_url = get_site_url(null, '/');
+  $parts = explode('://', $base_url);
+  // built in support when file_entity and restws is in place
+  $json = '{
+    "details": {
+      "title": "Internal files",
+      "icon": "perm-media",
+      "color": "light-blue",
+      "author": "WordPress",
+      "description": "WordPress site integration for HAX",
+      "tags": ["media", "wordpress"]
+    },
+    "connection": {
+      "protocol": "' . $parts[0] . '",
+      "url": "' . $parts[1] . '",
+      "operations": {
+        "browse": {
+          "method": "GET",
+          "endPoint": "wp-json/hax/v1/search-files.json?token=' . hax_generate_secure_key('haxTheWeb') . '",
+          "pagination": {
+            "style": "link",
+            "props": {
+              "first": "page.first",
+              "next": "page.next",
+              "previous": "page.previous",
+              "last": "page.last"
+            }
+          },
+          "search": {
+          },
+          "data": {
+          },
+          "resultMap": {
+            "defaultGizmoType": "image",
+            "items": "list",
+            "preview": {
+              "title": "name",
+              "details": "mime",
+              "image": "url",
+              "id": "uuid"
+            },
+            "gizmo": {
+              "source": "url",
+              "id": "uuid",
+              "title": "name",
+              "type": "type"
+            }
+          }
+        },
+        "add": {
+          "method": "POST",
+          "endPoint": "wp-json/hax/v1/file-upload.json?token=' . hax_generate_secure_key('haxTheWeb') . '",
+          "acceptsGizmoTypes": [
+            "image",
+            "video",
+            "audio",
+            "pdf",
+            "svg",
+            "document",
+            "csv"
+          ],
+          "resultMap": {
+            "item": "data.file",
+            "defaultGizmoType": "image",
+            "gizmo": {
+              "source": "url",
+              "id": "uuid"
+            }
+          }
+        }
+      }
+    }
+  }';
+  return $json;
+}
+
+add_action( 'rest_api_init', function () {
+  register_rest_route( 'hax/v1', '/search-files.json', array(
+    'methods' => 'GET',
+    'callback' => 'hax_search_files',
+  ) );
+} );
+
+function hax_search_files(WP_REST_Request $request) {
+  // You can access parameters via direct array access on the object:
+  $param = $request['some_param'];
+  $token = $request->get_param( 'token' );
+  if ($token == hax_generate_secure_key('haxTheWeb')) {
+    // @todo return a list of media assets
+    $return = array();
     // Create the response object
     $response = new WP_REST_Response( $return );
     $response->set_status( 200 );
