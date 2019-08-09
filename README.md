@@ -25,8 +25,7 @@ this page.
 
 Go to the node's hax tab, then hit the pencil in the top right. When your done
 editing hit the power button again and it should confirm that it has saved back
-to the server. Congratulations on destoying the modules you need to build an
-awesome site!
+to the server.
 
 ### Developer functions
 By default, the auto-loaded elements will append to the page on node view mode
