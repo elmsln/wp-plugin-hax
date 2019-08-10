@@ -1,36 +1,29 @@
+## HAX
+Bringing the HAX block editor to ClassicPress & WordPress. [HAX](https://haxtheweb.org/) is short for headless authoring experience, meaning that it is a block editor that is disconnected from the CMS its used in. HAX recognizes editable blocks by using the [web component standard](https://webcomponents.org/) and a small piece of abstracted JSON Schema called [HAX Schema](https://haxtheweb.org/hax-schema) in order to know what's editable. HAX provides all of the editing capabilities in a way that attempts to write clean HTML markup the same way an expert end-user could, but without ever touching code.
+
+## Dependencies
+- You'll also need the [Webcomponents plugin](https://github.com/elmsln/wp-plugin-webcomponents) to use HAX.
+- If using WordPress, you'll need to get the [Classic Editor plugin](https://wordpress.org/plugins/classic-editor/)
+  - ClassicPress does not have this dependency
+
 ## Usage
 
 This should give you the dependencies you need to get going.
-1. Enable the HAX module and any dependencies it requires.
-2. Go to the permissions page to ensure users have the 'use hax' permission
-   checked. Once this is checked then people will start to see a 'HAX Authoring'
-   local menu item / tab / contextual option show up when they have access to
-   edit a node. If you want users to be able to upload files, grant the
-   'Upload files via HAX editor' permission.
-3. The default is to serve JS assets up from a CDN as per the webcomponents module.
-   Should you need to change this keep reading into building your own assets.
+1. Download this plugin and place it in wp-content/plugins/hax
+2. Download the Webcomponents plugins and place it in wp-content/plugins/webcomponents
+3. If using WordPress you'll also need the Classic Editor plugin; and then you'll also have to enable it as the default editor (wp-admin/options-writing.php)
+4. Enable the Plugins (wp-admin/plugins.php)
+5. Go to edit or create a new page / post
+6. Enjoy HAX'ing the web
 
-NOTE on Text Formats: HAX is designed to work with nodes with bodies in the
-default Full HTML format where "Limit allowed HTML tags and correct faulty HTML"
-is unchecked, or with formats with similarly permissive settings. For this
-reason, it is advisable to only allow trusted users to access HAX.
+## Note on usage
+The default is to serve the Javascript required for HAX and its web components from a CDN. We default to a Penn State mirror of the required assets so you can get up and running quickly. We recommend that if you choose to go into production with HAX, that you look at doing a build routine locally (outlined below) in order to reduce your reliance on our CDN as well as give you a specific version of the assets.
 
-## Settings
-
-The settings page has ways of hooking up youtube, vimeo and more via the "App
-store" concept built into HAX. You can also make small tweaks to your needs on
-this page.
-
-## End user
-
-Go to the node's hax tab, then hit the pencil in the top right. When your done
-editing hit the power button again and it should confirm that it has saved back
-to the server.
+## Hooking up additional "apps" in the "Find" area
+To connect to popular services like YouTube, Flickr, and Vimeo you'll need an API key. You can find details on how to get these keys as well as where to put them on the General Settings (wp-admin/options-general.php) page.
 
 ### Developer functions
-By default, the auto-loaded elements will append to the page on node view mode
-full. To override this, set hax_autoload_element_node_view to false in
-settings.php
+By default, the auto-loaded elements (things you make with HAX and hit save) need to have the website taught how to render. This means that their web component JS files will be added to the site in order for them to render for users. This list can be modified on the General Settings page wp-admin/options-general.php.
 
 # Front end Developers
 You may build HAX from source if needed. HAX defaults to use CDNs which will effectively point to
