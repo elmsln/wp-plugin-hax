@@ -1,14 +1,14 @@
 <?php
 /**
  * @package HAX
- * @version 3.1.1
+ * @version 3.1.3
  */
 /*
 Plugin Name: HAX
 Plugin URI: https://github.com/elmsln/wp-plugin-hax
 Description: An ecosystem agnostic web editor to democratise the web and liberate users of platforms.
 Author: Bryan Ollendyke
-Version: 3.1.1
+Version: 3.1.3
 Author URI: https://haxtheweb.org/
 */
 
