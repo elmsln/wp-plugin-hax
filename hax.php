@@ -1,19 +1,35 @@
 <?php
-include_once 'HAXService.php';
-define('WP_HAX_AUTOLOAD_ELEMENT_LIST', 'oer-schema lrn-aside grid-plate tab-list magazine-cover video-player image-compare-slider license-element self-check multiple-choice lrn-table hero-banner task-list media-image lrndesign-blockquote meme-maker a11y-gif-player paper-audio-player wikipedia-query lrn-vocab lrn-math person-testimonial citation-element code-editor place-holder stop-note q-r wave-player');
-
 /**
  * @package HAX
- * @version 3.1.0
+ * @version 3.1.1
  */
 /*
 Plugin Name: HAX
 Plugin URI: https://github.com/elmsln/wp-plugin-hax
 Description: An ecosystem agnostic web editor to democratise the web and liberate users of platforms.
 Author: Bryan Ollendyke
-Version: 3.1.0
+Version: 3.1.1
 Author URI: https://haxtheweb.org/
 */
+
+include_once 'HAXService.php';
+define('WP_HAX_AUTOLOAD_ELEMENT_LIST', 'oer-schema lrn-aside grid-plate tab-list magazine-cover video-player image-compare-slider license-element self-check multiple-choice lrn-table hero-banner task-list media-image lrndesign-blockquote meme-maker a11y-gif-player paper-audio-player wikipedia-query lrn-vocab lrn-math person-testimonial citation-element code-editor place-holder stop-note q-r wave-player');
+
+// plugin dependency check
+// based on https://github.com/DevinVinson/WordPress-Plugin-Boilerplate/issues/468#issuecomment-361235083
+function hax_activate() {
+  if ( ! function_exists( 'is_plugin_active_for_network' ) ) {
+    include_once( ABSPATH . '/wp-admin/includes/plugin.php' );
+  }
+  if ( current_user_can( 'activate_plugins' ) && ! function_exists( 'webcomponents_deps' ) ) {
+    // Deactivate the plugin.
+    deactivate_plugins( plugin_basename( __FILE__ ) );
+    // Throw an error in the WordPress admin console.
+    $error_message = '<p>' . esc_html__( 'This plugin requires ', 'hax' ) . '<a href="' . esc_url( 'https://github.com/elmsln/wp-plugin-webcomponents/' ) . '">Webcomponents</a>' . esc_html__( ' plugin to be active.', 'hax' ) . '</p>';
+    die( $error_message ); // WPCS: XSS ok.
+  }
+}
+register_activation_hook( __FILE__, 'hax_activate' );
 
 // Wire up HAX to hijack the Classic editor
 function hax_wordpress($hook) {
