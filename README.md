@@ -1,4 +1,4 @@
-## HAX
+## haxtheweb
 Bringing the HAX block editor to ClassicPress & WordPress. [HAX](https://haxtheweb.org/) is short for headless authoring experience, meaning that it is a block editor that is disconnected from the CMS its used in. HAX recognizes editable blocks by using the [web component standard](https://www.webcomponents.org/). HAX provides editing capabilities in a way that attempts to write clean HTML markup the same way an expert end-user could, but without ever touching code! The code is writen in a way that experts and developers can jump in and modify as needed given the semantic nature of webcomponents!
 
 ## Dependencies
@@ -7,7 +7,7 @@ Bringing the HAX block editor to ClassicPress & WordPress. [HAX](https://haxthew
 
 ## Usage
 This should give you the dependencies you need to get going.
-1. Download this plugin and place it in wp-content/plugins/hax
+1. Download this plugin and place it in wp-content/plugins/haxtheweb
 2. If using WordPress you'll also need the Classic Editor plugin; and then you'll have to enable it as the default editor (wp-admin/options-writing.php)
 3. Enable the Plugins (wp-admin/plugins.php)
 4. Go to edit or create a new page / post
@@ -46,9 +46,9 @@ Perform this on your computer locally, this doesn't have to be installed on your
 
 ## Usage
 
-- Find `CopyThisStuff` directory in `/wp-content/plugins/hax`.
-- create a `/wp-content/hax` directory
-- copy the files from `CopyThisStuff` into `/wp-content/hax`
+- Find `CopyThisStuff` directory in `/wp-content/plugins/haxtheweb`.
+- create a `/wp-content/haxtheweb` directory
+- copy the files from `CopyThisStuff` into `/wp-content/haxtheweb`
 
 Then run the following (from the directory you copied it over to) in order to get dependencies:
 ```bash
