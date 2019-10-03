@@ -1,31 +1,33 @@
 ## HAX
-Bringing the HAX block editor to ClassicPress & WordPress. [HAX](https://haxtheweb.org/) is short for headless authoring experience, meaning that it is a block editor that is disconnected from the CMS its used in. HAX recognizes editable blocks by using the [web component standard](https://webcomponents.org/) and a small piece of abstracted JSON Schema called [HAX Schema](https://haxtheweb.org/hax-schema) in order to know what's editable. HAX provides all of the editing capabilities in a way that attempts to write clean HTML markup the same way an expert end-user could, but without ever touching code.
+Bringing the HAX block editor to ClassicPress & WordPress. [HAX](https://haxtheweb.org/) is short for headless authoring experience, meaning that it is a block editor that is disconnected from the CMS its used in. HAX recognizes editable blocks by using the [web component standard](https://www.webcomponents.org/). HAX provides editing capabilities in a way that attempts to write clean HTML markup the same way an expert end-user could, but without ever touching code! The code is writen in a way that experts and developers can jump in and modify as needed given the semantic nature of webcomponents!
 
 ## Dependencies
-- You'll also need the [Webcomponents plugin](https://github.com/elmsln/wp-plugin-webcomponents) to use HAX.
 - If using WordPress, you'll need to get the [Classic Editor plugin](https://wordpress.org/plugins/classic-editor/)
   - ClassicPress does not have this dependency
 
 ## Usage
-
 This should give you the dependencies you need to get going.
 1. Download this plugin and place it in wp-content/plugins/hax
-2. Download the Webcomponents plugins and place it in wp-content/plugins/webcomponents
-3. If using WordPress you'll also need the Classic Editor plugin; and then you'll also have to enable it as the default editor (wp-admin/options-writing.php)
-4. Enable the Plugins (wp-admin/plugins.php)
-5. Go to edit or create a new page / post
-6. Enjoy HAX'ing the web
+2. If using WordPress you'll also need the Classic Editor plugin; and then you'll have to enable it as the default editor (wp-admin/options-writing.php)
+3. Enable the Plugins (wp-admin/plugins.php)
+4. Go to edit or create a new page / post
+5. Enjoy HAX'ing the web
+
+## Configuration
+HAX adds options to the Writing Settings page (wp-admin/options-writing.php) to allow for further integrations and customizations though the default settings are fine to get up and started with.
 
 ## Note on usage
-The default is to serve the Javascript required for HAX and its web components from a CDN. We default to a Penn State mirror of the required assets so you can get up and running quickly. We recommend that if you choose to go into production with HAX, that you look at doing a build routine locally (outlined below) in order to reduce your reliance on our CDN as well as give you a specific version of the assets.
+The default is to serve the Javascript required for HAX and its web components from a CDN. We default to a Penn State mirror of the required assets so you can get up and running quickly. We recommend that if you choose to go into production with HAX, that you look at doing a build routine locally (outlined below) or leveraging one of the faster CDNs available.
 
 ## Hooking up additional "apps" in the "Find" area
-To connect to popular services like YouTube, Flickr, and Vimeo you'll need an API key. You can find details on how to get these keys as well as where to put them on the General Settings (wp-admin/options-general.php) page.
+To connect to popular services like YouTube, Flickr, and Vimeo you'll need an API key. You can find details on how to get these keys as well as where to put them on the Writing Settings (wp-admin/options-writing.php) page.
+
+# DEVELOPERS ONLY
 
 ### Developer functions
-By default, the auto-loaded elements (things you make with HAX and hit save) need to have the website taught how to render. This means that their web component JS files will be added to the site in order for them to render for users. This list can be modified on the General Settings page wp-admin/options-general.php.
+By default, the auto-loaded elements (things you make with HAX and hit save) need to have the website taught how to render. This means that their web component JS files will be added to the site in order for them to render for users. This list can be modified on the Writing Settings page wp-admin/options-writing.php.
 
-# Front end Developers
+## Front end Developers
 You may build HAX from source if needed. HAX defaults to use CDNs which will effectively point to
 this directory or some mutation of it -- https://github.com/elmsln/HAXcms/tree/master/build
 
@@ -44,9 +46,9 @@ Perform this on your computer locally, this doesn't have to be installed on your
 
 ## Usage
 
-- Find `CopyThisStuff` directory in `/wp-content/plugins/webcomponents`.
-- create a `/wp-content/webcomponents` directory
-- copy the files from `CopyThisStuff` into `/wp-content/webcomponents`
+- Find `CopyThisStuff` directory in `/wp-content/plugins/hax`.
+- create a `/wp-content/hax` directory
+- copy the files from `CopyThisStuff` into `/wp-content/hax`
 
 Then run the following (from the directory you copied it over to) in order to get dependencies:
 ```bash

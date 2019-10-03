@@ -1,18 +1,22 @@
 <?php
 /**
  * @package HAX
- * @version 3.1.3
+ * @version 3.2.0
  */
 /*
 Plugin Name: HAX
 Plugin URI: https://github.com/elmsln/wp-plugin-hax
 Description: An ecosystem agnostic web editor to democratise the web and liberate users of platforms.
 Author: Bryan Ollendyke
-Version: 3.1.3
+Version: 3.2.0
 Author URI: https://haxtheweb.org/
 */
 
 include_once 'HAXService.php';
+include_once 'WebComponentsService.php';
+// default to PSU "cdn"
+define('WP_HAX_WEBCOMPONENTS_LOCATION', 'https://webcomponents.psu.edu/cdn/');
+// default list of elements to supply
 define('WP_HAX_AUTOLOAD_ELEMENT_LIST', 'oer-schema lrn-aside grid-plate tab-list magazine-cover video-player image-compare-slider license-element self-check multiple-choice lrn-table hero-banner task-list media-image lrndesign-blockquote meme-maker a11y-gif-player paper-audio-player wikipedia-query lrn-vocab lrn-math person-testimonial citation-element code-editor place-holder stop-note q-r wave-player');
 
 // plugin dependency check
@@ -21,11 +25,12 @@ function hax_activate() {
   if ( ! function_exists( 'is_plugin_active_for_network' ) ) {
     include_once( ABSPATH . '/wp-admin/includes/plugin.php' );
   }
-  if ( current_user_can( 'activate_plugins' ) && ! function_exists( 'webcomponents_deps' ) ) {
+  // feature detect WordPress + Gutenberg but NOT Classic Editor
+  if ( current_user_can( 'activate_plugins' ) && (class_exists( 'WPSEO_Gutenberg_Compatibility' ) && ! class_exists( 'Classic_Editor' )) ) {
     // Deactivate the plugin.
     deactivate_plugins( plugin_basename( __FILE__ ) );
     // Throw an error in the WordPress admin console.
-    $error_message = '<p>' . esc_html__( 'This plugin requires ', 'hax' ) . '<a href="' . esc_url( 'https://github.com/elmsln/wp-plugin-webcomponents/' ) . '">Webcomponents</a>' . esc_html__( ' plugin to be active.', 'hax' ) . '</p>';
+    $error_message = '<p>' . esc_html__( 'This plugin requires ', 'classic-editor' ) . '<a href="' . esc_url( 'https://wordpress.org/plugins/classic-editor/' ) . '">Classic Editor</a>' . esc_html__( ' plugin to be active.', 'classic-editor' ) . '</p>';
     die( $error_message ); // WPCS: XSS ok.
   }
 }
@@ -57,21 +62,77 @@ function hax_admin_init() {
 		'hax_settings',
 		'HAX block editor',
 		'hax_setting_callback_function',
-		'general',
-		'webcomponents_setting_section'
+		'writing',
+		'hax_setting_section'
+  );
+  add_settings_section(
+		'hax_setting_section',
+		'Web components settings',
+		'hax_webcomponents_setting_section_callback_function',
+		'writing'
 	);
-   	
+ 	
+ 	// Add the field with the names and function to use for our new
+ 	// settings, put it in our new section
+ 	add_settings_field(
+		'hax_webcomponents_location',
+		'Web components location',
+		'hax_webcomponents_setting_callback_function',
+		'writing',
+		'hax_setting_section'
+	);
+	// Add the field with the names and function to use for our new
+ 	// settings, put it in our new section
+ 	add_settings_field(
+		'hax_webcomponents_location_other',
+		'Other location',
+		'webcomponents_setting_other_callback_function',
+		'writing',
+		'hax_setting_section'
+	);
+ 	
  	// Register our setting so that $_POST handling is done for us and
  	// our callback function just has to echo the <input>
-  register_setting( 'general', 'hax_autoload_element_list' );
+ 	register_setting( 'writing', 'hax_webcomponents_location' );
+ 	register_setting( 'writing', 'hax_webcomponents_location_other' );
+
+ 	// Register our setting so that $_POST handling is done for us and
+ 	// our callback function just has to echo the <input>
+  register_setting( 'writing', 'hax_autoload_element_list' );
   // build out the key space for our baseline app integrations
   $hax = new HAXService();
   $baseApps = $hax->baseSupportedApps();
   foreach ($baseApps as $key => $app) {
-    register_setting('general', 'hax_' . $key . '_key');
+    register_setting('writing', 'hax_' . $key . '_key');
   }
 }
 add_action( 'admin_init', 'hax_admin_init' );
+
+function hax_webcomponents_setting_section_callback_function() {
+ 	echo '<p>Location of the web components. Select a CDN or if building locally ensure you use other and manually define the location.</p>';
+ }
+function hax_webcomponents_setting_callback_function() {
+	$selected = get_option( 'hax_webcomponents_location', WP_HAX_WEBCOMPONENTS_LOCATION );
+	$options = array(
+		'https://webcomponents.psu.edu/cdn/' => 'Penn State CDN',
+		'https://cdn.waxam.io/' => 'Waxam CDN',
+		'/wp-content/hax/' => 'Local libraries folder (/wp-content/hax/)',
+		'other' => 'Other',
+	);
+	echo '<select name="hax_webcomponents_location" id="hax_webcomponents_location" class="code">';
+	foreach ($options as $option => $label) {
+		if ($option == $selected) {
+			echo '<option value="' . $option . '" selected="selected">' . $label . '</option>';
+		}
+		else {
+			echo '<option value="' . $option . '">' . $label . '</option>';
+		}
+	}
+	echo '</select>';
+}
+function webcomponents_setting_other_callback_function() {
+	echo '<input name="hax_webcomponents_location_other" id="hax_webcomponents_location_other" type="text" value="' . get_option( 'hax_webcomponents_location_other', '' ) . '" class="code" size="80" />';
+}
 
 function hax_setting_callback_function() {
   // autoload list
@@ -302,4 +363,24 @@ function hax_search_files(WP_REST_Request $request) {
     return $response;
   }
 }
+
+// Wire up web components to WordPress
+function hax_webcomponents_deps() {
+  $location = get_option( 'hax_webcomponents_location', WP_HAX_WEBCOMPONENTS_LOCATION );
+  if ($location == 'other') {
+	$location = get_option( 'hax_webcomponents_location_other', '' );
+  }
+  // append base_path if this site has a url to start it
+  if (strpos($location, 'http') === FALSE) {
+	$location = get_site_url(null, $location);
+  }
+  // load webcomponentsjs polyfill library if it exists
+  $files = array('build.js');
+  $wc = new WebComponentsService();
+  print $wc->applyWebcomponents($location, $files);
+}
+// front end paths
+add_action( 'wp_footer', 'hax_webcomponents_deps' );
+// back end paths
+add_action( 'admin_footer', 'hax_webcomponents_deps' );
 ?>
