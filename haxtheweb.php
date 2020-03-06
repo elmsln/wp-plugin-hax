@@ -17,7 +17,7 @@ include_once 'WebComponentsService.php';
 // default to PSU "cdn"
 define('WP_HAXTHEWEB_WEBCOMPONENTS_LOCATION', 'https://webcomponents.psu.edu/cdn/');
 // default list of elements to supply
-define('WP_HAXTHEWEB_AUTOLOAD_ELEMENT_LIST', 'oer-schema lrn-aside grid-plate tab-list magazine-cover video-player image-compare-slider license-element self-check multiple-choice lrn-table hero-banner task-list media-image lrndesign-blockquote meme-maker a11y-gif-player paper-audio-player wikipedia-query lrn-vocab lrn-math person-testimonial citation-element code-editor place-holder stop-note q-r wave-player');
+define('WP_HAXTHEWEB_AUTOLOAD_ELEMENT_LIST', 'oer-schema lrn-aside grid-plate tab-list magazine-cover video-player image-compare-slider license-element self-check multiple-choice lrn-table hero-banner task-list media-image lrndesign-blockquote meme-maker a11y-gif-player paper-audio-player wikipedia-query lrn-vocab lrn-math person-testimonial citation-element place-holder stop-note q-r');
 
 // plugin dependency check
 // based on https://github.com/DevinVinson/WordPress-Plugin-Boilerplate/issues/468#issuecomment-361235083
@@ -39,7 +39,9 @@ register_activation_hook( __FILE__, 'haxtheweb_activate' );
 // Wire up HAX to hijack the Classic editor
 function haxtheweb_wordpress($hook) {
   if ($hook == 'post.php' || $hook == 'post-new.php') {
-    wp_enqueue_script( 'haxtheweb_the_press', plugins_url('js/hax-the-press.js', __FILE__), array(), false, true );
+    wp_enqueue_script('haxtheweb_the_press', plugins_url('js/hax-the-press.js', __FILE__), array(), false, true );
+    wp_register_style('haxtheweb_stylesheet', plugins_url('css/haxtheweb.css', __FILE__));
+    wp_enqueue_style( 'haxtheweb_stylesheet' );
   }
 }
 add_action( 'admin_enqueue_scripts', 'haxtheweb_wordpress' );
