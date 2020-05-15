@@ -4,7 +4,7 @@ Donate link: https://haxtheweb.org/
 Tags: editor, haxtheweb, disable gutenberg, classic editor
 Requires at least: 4.9
 Tested up to: 5.4
-Stable tag: 3.9.2
+Stable tag: 3.9.3
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -95,8 +95,9 @@ We built our own tooling to take the guess work out of creating, publishing and 
 - https://github.com/elmsln/lrnwebcomponents - Our invoking of this tooling to see what a filled out repo looks like
 
 == Upgrade Notice ==
-Worth upgrading to 3.9.2 as it is on wordpress.org official registry!
+Worth upgrading to 3.9.2+ as it seeks wordpress.org official registry!
 
 == Changelog ==
+3.9.3 - notice fix on some pages
 3.9.2 - Media integration and attachments!
 3.9.1 - Search Media directly from HAX editor!

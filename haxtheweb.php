@@ -1,14 +1,14 @@
 <?php
 /**
  * @package haxtheweb
- * @version 3.9.2
+ * @version 3.9.3
  */
 /*
 Plugin Name: haxtheweb
 Plugin URI: https://github.com/elmsln/wp-plugin-hax
 Description: An ecosystem agnostic web editor to democratise the web and liberate users of platforms.
 Author: Bryan Ollendyke
-Version: 3.9.2
+Version: 3.9.3
 Author URI: https://haxtheweb.org/
 */
 
@@ -55,8 +55,12 @@ add_action( 'admin_enqueue_scripts', 'haxtheweb_wordpress' );
 
 // Wire up web components to WordPress
 function haxtheweb_wordpress_connector($hook) {
+  $poststr = '&post=';
+  if (isset($_GET['post'])) {
+    $poststr.= sanitize_key($_GET['post']);
+  }
   $data = array(
-    'url' => get_site_url(null, '/wp-json/haxtheweb/v1/appstore.json?token=' . haxtheweb_generate_secure_key('haxTheWeb')) . '&post=' . sanitize_key($_GET['post']),
+    'url' => get_site_url(null, '/wp-json/haxtheweb/v1/appstore.json?token=' . haxtheweb_generate_secure_key('haxTheWeb')) . $poststr,
   );
   print '<style>#adminmenuwrap{z-index:1000 !important;}h-a-x{padding:40px;}</style><script>window.haxThePressConnector=\'' . json_encode($data) . '\';</script>';
 }
@@ -576,7 +580,7 @@ function _HAXTHEWEB_site_connection($post = '') {
   // built in support when file_entity and restws is in place
   $json = '{
     "details": {
-      "title": "Internal files",
+      "title": "WordPress Media",
       "icon": "perm-media",
       "color": "light-blue",
       "author": "WordPress",
